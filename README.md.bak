@@ -30,5 +30,3 @@ imageFnm = {'ColCamSeq/','GenSeq/','ShSeq/','Wall/'}. i = 1,2,3,4
 --Groundtruth data are in [imageFnm 'GroundTruth/'].
 
 In order to run our demo, you need to prepare these five kinds of data. But since the dataset are not opened by the oringal author, we encourage readers to ask for the datasets and use BGS on these datasets.
-
-Enjoy!
