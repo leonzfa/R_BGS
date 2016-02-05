@@ -2,6 +2,7 @@ clc
 % if reTrain       = 1, start from features extraction, train forest
 % if reRefine      = 1, use the forest to calculate new results
 % if drawHistogram = 1, draw the histogram for features
+reExtract     = 0;
 reTrain       = 0;
 reRefine      = 0;
 drawHistogram = 0;
@@ -24,9 +25,12 @@ opts.forestDir  = 'forest/';
 opts.saveSamples= 1;
 opts.addSample  = 1;
 
+if(reExtract)
+    %first extracting features
+    ftrs = ftrExtr(opts);
+end
+
 if(reTrain)
-    % first extracting features
-    % ftrs = ftrExtr(opts);
     % then train forest
     for setNum = [2 3]
         z = trainForest(setNum,opts);
