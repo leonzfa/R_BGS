@@ -1,33 +1,22 @@
-function z = trainForest(setNum,opts)  
+function z = trainForest(setNum,opts) 
 
-
-
-forestDir  = opts.forestDir;
+method = opts.method;
+forestDir  = opts.forestDir; forestDir = [forestDir method '/'];
 if opts.addSample  ==0
     ftrsDir = opts.ftrsDirNotAddSample;
 else
     ftrsDir = opts.ftrsDir;
 end
-
-if setNum ==3
-    setNumListC = [1 2 4];%choose training dataset for color
-    setNumListD = [1 2 4];%choose training dataset for depth
-end
-
-if setNum ==2
-    setNumListC = [1 3 4];%choose training dataset for color
-    setNumListD = [1  4];%choose training dataset for depth
-end
+ftrsDir = [ftrsDir method '/'];
 
 setFtrsC=[1:9];%select features for color
 setFtrsD=[7:9];%select features for depth
 
 %setings for random forest
-numOfTree_C = 15;
-numOfTree_D = 10;
-maxDepth_C  = 64;
-maxDepth_D  = 6;
-
+numOfTree_C = opts.numOfTree_C;
+numOfTree_D = opts.numOfTree_D;
+maxDepth_C  = opts.maxDepth_C;
+maxDepth_D  = opts.maxDepth_D;
 
 pTreeC=struct('M',numOfTree_C,'minCount', 1, 'minChild', 8, ...
       'maxDepth',maxDepth_C, 'H', 2, 'split', 'gini');
@@ -36,7 +25,11 @@ pTreeD=struct('M',numOfTree_D,'minCount', 1, 'minChild', 8, ...
 
 
 ftrs_color_pos = [];ftrs_color_neg = [];
-for i=setNumListC,
+
+for i=1:opts.dataSetNum
+    if i == setNum
+        continue;
+    end  
   load([ ftrsDir 'features_color_positive' '-' num2str(i) '.mat']);
   load([ ftrsDir 'features_color_negative' '-' num2str(i) '.mat']);
   ftrs_color_pos = [ftrs_color_pos features_color_positive];
@@ -44,7 +37,12 @@ for i=setNumListC,
 end
 
 ftrs_depth_pos = [];ftrs_depth_neg = [];
-for i=setNumListD,
+
+for i=1:opts.dataSetNum
+    if i == setNum || i ==3
+        continue;
+    end
+  
   load([ ftrsDir 'features_depth_positive' '-' num2str(i) '.mat']);
   load([ ftrsDir 'features_depth_negative' '-' num2str(i) '.mat']);
   ftrs_depth_pos = [ftrs_depth_pos features_depth_positive];
@@ -104,15 +102,10 @@ forestD=forestTrain(ftrsTrainD_,labelsTrainD,pTreeD);
 accuracy = (100-100*symerr(hs,double(labelsTrainD))/length(hs));
 disp('forestD train accuracy:');disp(accuracy);
 
-%save models
-selDataSetC=[num2str(setNumListC(1))];
-for i=2:length(setNumListC),selDataSetC=[selDataSetC '-' num2str(setNumListC(i))];end
-selDataSetD=[num2str(setNumListD(1))];
-for i=2:length(setNumListD),selDataSetD=[selDataSetD '-' num2str(setNumListD(i))];end
 
 if(~exist(forestDir,'dir')), mkdir(forestDir); end
-save([forestDir 'forestC' '-' selDataSetC '.mat'],'forestC','-v7.3');
-save([forestDir 'forestD' '-' selDataSetD '.mat'],'forestD','-v7.3');
+save([forestDir 'forestC' '-' num2str(setNum) '.mat'],'forestC','-v7.3');
+save([forestDir 'forestD' '-' num2str(setNum) '.mat'],'forestD','-v7.3');
 z = 1;
 end
 

@@ -1,4 +1,4 @@
-function Z = analysis(setNum,method,opts)
+function Z = analysis(setNum,opts)
 % method = 0 £ºproposed
 %        = 1 £ºmogc
 %        = 2 £ºmogd
@@ -11,13 +11,13 @@ function Z = analysis(setNum,method,opts)
 %       Z[6] : FGR&FD/FD
 % opts.imageDir = 'images/';          % 
 % opts.imageFnm = {'ColCamSeq/','GenSeq/','ShSeq/','Wall/'};        % dataset name
-if(method==0)
-    opts.bgsColor = 'Color/MOG/';
-    opts.bgsDepth = 'Depth/MOG/';
-else
-    opts.bgsColor = 'Color/FuzzySOM/';
-    opts.bgsDepth = 'Depth/FuzzySOM/';
-end
+% if(method==0)
+%     opts.bgsColor = 'Color/MOG/';
+%     opts.bgsDepth = 'Depth/MOG/';
+% else
+%     opts.bgsColor = 'Color/FuzzySOM/';
+%     opts.bgsDepth = 'Depth/FuzzySOM/';
+% end
 % % opts.imgColor = 'Color/';
 % % opts.imgDepth = 'Depth/';
 % % opts.imgGt    = 'GroundTruth/';
@@ -34,12 +34,12 @@ bgsDepthDir = opts.bgsDepth;
 imgColorDir = opts.imgColor;
 imgDepthDir = opts.imgDepth;
 imgGtDir    = opts.imgGt;
-
+method    = opts.method;
 
 % Get the images' number 
-for i = 1:4
+for i = 1:opts.dataSetNum
     gtDir = [dataSetDir  dataSetFnm{1,i} imgGtDir];
-    gtIds=dir(gtDir);
+    gtIds=dir([gtDir '*.bmp']);
     gtIds=gtIds([gtIds.bytes]>0);
     gtIds={gtIds.name};
     ext=gtIds{1}(end-2:end);
@@ -68,15 +68,19 @@ for gtIdx = gtNum{setNum}(1:end)
 %         continue;
 %     end
     % load images
-    resultDir = ['post_result/' dataSetFnm{1,setNum} ];
+    resultDir = ['results/' dataSetFnm{1,setNum} method '/' ];
     result=imread([resultDir 'result' num2str(gtIdx) '.bmp']); result = result&MASK;
     GT  =imread([dataSetDir  dataSetFnm{1,setNum} imgGtDir    'gt_'    num2str(gtIdx) 'BW.bmp']); %ground truth
+    
     C   =imread([dataSetDir  dataSetFnm{1,setNum} imgColorDir '/img_'  num2str(gtIdx) '.bmp']); %color map
-    BGC =imread([dataSetDir  dataSetFnm{1,setNum} bgsColorDir 'mogc'   num2str(gtIdx) '.bmp']); %background based on color
-    FGC =imread([dataSetDir  dataSetFnm{1,setNum} bgsColorDir '/mogc'  num2str(gtIdx) '.bmp']); %foreground based on color
-    D   =imread([dataSetDir  dataSetFnm{1,setNum} imgDepthDir 'depth_' num2str(gtIdx) '.bmp']); %depth map
-    BGD =imread([dataSetDir  dataSetFnm{1,setNum} bgsDepthDir 'bgd'    num2str(gtIdx) '.bmp']); %background based on depth
-    FGD =imread([dataSetDir  dataSetFnm{1,setNum} bgsDepthDir 'mogd'   num2str(gtIdx) '.bmp']); %foreground based on depth
+    D   =imread([dataSetDir  dataSetFnm{1,setNum} imgDepthDir '/depth_' num2str(gtIdx) '.bmp']); %depth map
+    BGC =imread([dataSetDir  dataSetFnm{1,setNum} 'Color/' method '/bgc' num2str(gtIdx) '.bmp']); %bg by color
+    BGD =imread([dataSetDir  dataSetFnm{1,setNum} 'Depth/' method '/bgd'    num2str(gtIdx) '.bmp']); %bg by depth
+
+    FGC =imread([dataSetDir  dataSetFnm{1,setNum} 'Color/' method '/fgc'  num2str(gtIdx) '.bmp']); %fg by color
+    FGD =imread([dataSetDir  dataSetFnm{1,setNum} 'Depth/' method '/fgd'   num2str(gtIdx) '.bmp']); %fg by depth
+    
+    
     if(~isa(GT,'logical')), GT=im2bw(GT);end
     if(size(FGC,3) == 3) FGC = (rgb2gray(FGC))>0 & MASK;else FGC = FGC>0;end
     if(size(FGD,3) == 3) FGD = (rgb2gray(FGD))>0 & MASK;else FGD = FGD>0;end
