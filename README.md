@@ -7,7 +7,9 @@ In order to run our demo, you need to prepare: color and depth data;  foreground
 But since the dataset are not published by the oringal author, readers can ask for the datasets by themselves.
 
 Our code is run in Matlab 2016a.
+
 1. Run cppMake.m to compile
+
 2. Run rgbsDemo.m
 
 Enjoy!
